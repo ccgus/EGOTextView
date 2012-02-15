@@ -47,6 +47,8 @@ extern NSString * const EGOTextAttachmentPlaceholderString;
 
 - (void)egoTextView:(EGOTextView*)textView didSelectURL:(NSURL*)URL;
 
+- (BOOL)egoTextView:(EGOTextView*)textView tappedAtIndex:(NSInteger)index;
+
 @end
 
 @protocol EGOTextAttachmentCell <NSObject>
@@ -79,6 +81,7 @@ extern NSString * const EGOTextAttachmentPlaceholderString;
     BOOL _delegateRespondsToDidChange;
     BOOL _delegateRespondsToDidChangeSelection;
     BOOL _delegateRespondsToDidSelectURL;
+    BOOL _delegateRespondsToTappedAtIndex;
     
     NSAttributedString  *_attributedString;
     UIFont              *_font; 

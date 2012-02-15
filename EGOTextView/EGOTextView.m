@@ -338,9 +338,9 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
             UIView *view = [value attachmentView];
             [_attachmentViews addObject: view];
             
-            CGRect rect = [self firstRectForNSRange: range];
-            rect.size = [view frame].size;
-            [view setFrame: rect];
+            CGRect rect2 = [self firstRectForNSRange: range];
+            rect2.size = [view frame].size;
+            [view setFrame: rect2];
             [self addSubview: view];
         }
     }];
@@ -394,7 +394,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     }
     
     [self textChanged];
-
+    
     if (_delegateRespondsToDidChange) {
         [self.delegate egoTextViewDidChange:self];
     }
@@ -413,7 +413,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     _delegateRespondsToDidChange = [delegate respondsToSelector:@selector(egoTextViewDidChange:)];
     _delegateRespondsToDidChangeSelection = [delegate respondsToSelector:@selector(egoTextViewDidChangeSelection:)];
     _delegateRespondsToDidSelectURL = [delegate respondsToSelector:@selector(egoTextView:didSelectURL:)];
-    
+    _delegateRespondsToTappedAtIndex = [delegate respondsToSelector:@selector(egoTextView:tappedAtIndex:)];
 }
 
 - (void)setEditable:(BOOL)editable {
@@ -605,10 +605,10 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
                 CTRunGetPositions(run, CFRangeMake(0, 1), &position);
                 
                 CGSize size = [attachmentCell attachmentSize];
-                CGRect rect = { { origins[i].x + position.x, origins[i].y + position.y }, size };
+                CGRect rect2 = { { origins[i].x + position.x, origins[i].y + position.y }, size };
                 
                 UIGraphicsPushContext(UIGraphicsGetCurrentContext());
-                [attachmentCell attachmentDrawInRect: rect];
+                [attachmentCell attachmentDrawInRect: rect2];
                 UIGraphicsPopContext();
             }
         }
@@ -921,6 +921,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     if (self.selectedRange.length == 0) {
     
         if (_selectionView!=nil) {
+            debug(@"removing selection view");
             [_selectionView removeFromSuperview];
             _selectionView=nil;
         }
@@ -1205,7 +1206,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 }
 
 - (UITextPosition*)positionFromPosition:(UITextPosition *)position inDirection:(UITextLayoutDirection)direction offset:(NSInteger)offset {
-
+    
     EGOIndexedPosition *pos = (EGOIndexedPosition *)position;
     NSInteger newPos = pos.index;
     
@@ -1216,10 +1217,12 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
         case UITextLayoutDirectionLeft:
             newPos -= offset;
             break;
+        /*
         UITextLayoutDirectionUp: // not supported right now
             break; 
         UITextLayoutDirectionDown: // not supported right now
             break;
+        */
         default:
             break;
 
@@ -1802,6 +1805,8 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 
 - (void)doubleTap:(UITapGestureRecognizer*)gesture {
     
+    debug(@"%s:%d", __FUNCTION__, __LINE__);
+    
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(showMenu) object:nil];
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(showCorrectionMenu) object:nil];
 
@@ -1821,7 +1826,13 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 }
 
 - (void)tap:(UITapGestureRecognizer*)gesture {
-        
+    
+    // this is modeled after - (BOOL)textView:(NSTextView *)aTextView clickedOnLink:(id)aLink atIndex:(NSUInteger)charIndex
+    if (_delegateRespondsToTappedAtIndex && [delegate egoTextView:self tappedAtIndex:[self closestIndexToPoint:[gesture locationInView:self]]]) {
+        debug(@"yay");
+        return;
+    }
+    
     if (_editable && ![self isFirstResponder]) {
         [self becomeFirstResponder];  
         return;
@@ -2488,7 +2499,7 @@ static const NSTimeInterval kDefaultAnimationDuration = 0.15f;
     return range.location;
 }
 
-- (void)showFromView:(UIView*)view rect:(CGRect)rect {
+- (void)showFromView:(UIView*)aview rect:(CGRect)rect {
         
     CGPoint pos = CGPointMake(CGRectGetMinX(rect), CGRectGetMinY(rect));
     
@@ -2538,7 +2549,7 @@ static const NSTimeInterval kDefaultAnimationDuration = 0.15f;
             _showing=YES;
 
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (0.0f*NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                [self renderWithContentView:view fromRect:rect];
+                [self renderWithContentView:aview fromRect:rect];
             });
             
         }];
