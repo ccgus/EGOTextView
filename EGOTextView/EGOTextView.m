@@ -841,8 +841,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 
         CTLineRef line = (CTLineRef)[lines objectAtIndex:i];
         CFRange cfRange = CTLineGetStringRange(line);
-        NSRange range = NSMakeRange(range.location == kCFNotFound ? NSNotFound : cfRange.location, cfRange.length);
-                
+        NSRange range = NSMakeRange(cfRange.location == kCFNotFound ? NSNotFound : cfRange.location, cfRange.length);
         if (index >= range.location && index <= range.location+range.length) {
 
             CGFloat ascent, descent, xPos;
@@ -1270,7 +1269,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 - (UITextPosition *)positionWithinRange:(UITextRange *)range farthestInDirection:(UITextLayoutDirection)direction {
 
     EGOIndexedRange *r = (EGOIndexedRange *)range;
-    NSInteger pos = r.range.location;
+    NSInteger pos;
     
     switch (direction) {
         case UITextLayoutDirectionUp:
@@ -1289,7 +1288,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 - (UITextRange *)characterRangeByExtendingPosition:(UITextPosition *)position inDirection:(UITextLayoutDirection)direction {
 
     EGOIndexedPosition *pos = (EGOIndexedPosition *)position;
-    NSRange result = NSMakeRange(pos.index, 1);
+    NSRange result;
     
     switch (direction) {
         case UITextLayoutDirectionUp:
@@ -1366,7 +1365,9 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithCapacity:1];
     
     CTFontRef ctFont = (CTFontRef)[attribs valueForKey:(NSString*)kCTFontAttributeName];
-    UIFont *font = [UIFont fontWithName:(NSString*)CTFontCopyFamilyName(ctFont) size:CTFontGetSize(ctFont)];
+    CFStringRef famName = CTFontCopyFamilyName(ctFont);
+    UIFont *font = [UIFont fontWithName:(NSString*)famName size:CTFontGetSize(ctFont)];
+    CFRelease(famName);
     
     [dictionary setObject:font forKey:UITextInputTextFontKey];
     
