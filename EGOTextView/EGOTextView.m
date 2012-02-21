@@ -290,7 +290,6 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 }
 
 - (CGFloat)boundingWidthForHeight:(CGFloat)height {
-    
     CGSize suggestedSize = CTFramesetterSuggestFrameSizeWithConstraints(_framesetter, CFRangeMake(0, 0), NULL, CGSizeMake(CGFLOAT_MAX, height), NULL);
     return suggestedSize.width;   
 
@@ -299,6 +298,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 - (CGFloat)boundingHeightForWidth:(CGFloat)width {
     
     CGSize suggestedSize = CTFramesetterSuggestFrameSizeWithConstraints(_framesetter, CFRangeMake(0, 0), NULL, CGSizeMake(width, CGFLOAT_MAX), NULL);
+    
     return suggestedSize.height;
 
 }
@@ -462,7 +462,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 /////////////////////////////////////////////////////////////////////////////
 
 - (NSRange)rangeIntersection:(NSRange)first withSecond:(NSRange)second {
-
+    
     NSRange result = NSMakeRange(NSNotFound, 0);
     
     if (first.location > second.location) {
@@ -572,7 +572,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 }
 
 - (void)drawContentInRect:(CGRect)rect {    
-
+    
     [[UIColor colorWithRed:0.8f green:0.8f blue:0.8f alpha:1.0f] setFill];
     [self drawBoundingRangeAsSelection:_linkRange cornerRadius:2.0f];
     [[EGOTextView selectionColor] setFill];
@@ -800,7 +800,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 }
 
 - (CGRect)caretRectForIndex:(NSInteger)index {  
-        
+    
     NSArray *lines = (NSArray*)CTFrameGetLines(_frame);
     
     // no text / first index
@@ -886,7 +886,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
         NSInteger localIndex = index - lineRange.location;
       
         if (localIndex >= 0 && localIndex < lineRange.length) {
-
+            
             NSInteger finalIndex = MIN(lineRange.location + lineRange.length, range.location + range.length);
             CGFloat xStart = CTLineGetOffsetForStringIndex(line, index, NULL);
             CGFloat xEnd = CTLineGetOffsetForStringIndex(line, finalIndex, NULL);
@@ -900,6 +900,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     }
     
     free(origins);
+    
     return returnRect;
 }
 
@@ -920,7 +921,6 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     if (self.selectedRange.length == 0) {
     
         if (_selectionView!=nil) {
-            debug(@"removing selection view");
             [_selectionView removeFromSuperview];
             _selectionView=nil;
         }
@@ -1316,7 +1316,10 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 
 - (CGRect)firstRectForRange:(UITextRange *)range {
     
-    EGOIndexedRange *r = (EGOIndexedRange *)range;    
+    // this is called by -[UIKeyboardImpl _autocorrectPromptRect]
+    
+    EGOIndexedRange *r = (EGOIndexedRange *)range;
+    
     return [self firstRectForNSRange:r.range];   
 }
 
@@ -1325,11 +1328,11 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     EGOIndexedPosition *pos = (EGOIndexedPosition *)position;
 	return [self caretRectForIndex:pos.index];    
 }
-
+/*
 - (UIView *)textInputView {
     return _textContentView;
 }
-
+*/
 // MARK: UITextInput - Hit testing
 
 - (UITextPosition*)closestPositionToPoint:(CGPoint)point {
@@ -1806,8 +1809,6 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 
 - (void)doubleTap:(UITapGestureRecognizer*)gesture {
     
-    debug(@"%s:%d", __FUNCTION__, __LINE__);
-    
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(showMenu) object:nil];
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(showCorrectionMenu) object:nil];
 
@@ -1830,7 +1831,6 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     
     // this is modeled after - (BOOL)textView:(NSTextView *)aTextView clickedOnLink:(id)aLink atIndex:(NSUInteger)charIndex
     if (_delegateRespondsToTappedAtIndex && [delegate egoTextView:self tappedAtIndex:[self closestIndexToPoint:[gesture locationInView:self]]]) {
-        debug(@"yay");
         return;
     }
     
