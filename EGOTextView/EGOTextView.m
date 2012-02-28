@@ -620,6 +620,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 - (NSInteger)closestWhiteSpaceIndexToPoint:(CGPoint)point {
     
     point = [self convertPoint:point toView:_textContentView];
+    
     NSArray *lines = (NSArray*)CTFrameGetLines(_frame);
     NSInteger count = [lines count];
     CGPoint *origins = (CGPoint*)malloc(count * sizeof(CGPoint));
@@ -704,6 +705,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 - (NSInteger)closestIndexToPoint:(CGPoint)point {	
 
     point = [self convertPoint:point toView:_textContentView];
+    
     NSArray *lines = (NSArray*)CTFrameGetLines(_frame);
     NSInteger count = [lines count];
     CGPoint *origins = (CGPoint*)malloc(count * sizeof(CGPoint));
@@ -1830,13 +1832,16 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 - (void)tap:(UITapGestureRecognizer*)gesture {
     
     // this is modeled after - (BOOL)textView:(NSTextView *)aTextView clickedOnLink:(id)aLink atIndex:(NSUInteger)charIndex
-    if (_delegateRespondsToTappedAtIndex && [delegate egoTextView:self tappedAtIndex:[self closestIndexToPoint:[gesture locationInView:self]]]) {
+    
+    NSInteger index = [self closestIndexToPoint:[gesture locationInView:self]];
+    
+    if (_delegateRespondsToTappedAtIndex && [delegate egoTextView:self tappedAtIndex:index]) {
         return;
     }
     
     if (_editable && ![self isFirstResponder]) {
         [self becomeFirstResponder];  
-        return;
+        //return;
     }
         
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(showMenu) object:nil];
@@ -1846,8 +1851,6 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     if (self.selectedRange.length>0) {
         self.selectedRange = NSMakeRange(_selectedRange.location, 0);
     }
-    
-    NSInteger index = [self closestWhiteSpaceIndexToPoint:[gesture locationInView:self]];
     
     if (_delegateRespondsToDidSelectURL && !_editing) {
         if ([self selectedLinkAtIndex:index]) {
@@ -2163,7 +2166,10 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     } else if ((action == @selector(select:) || action == @selector(selectAll:))) {
         return (_selectedRange.length==0 && [self hasText]);
     } else if (action == @selector(paste:)) {
-        return (_editing && [[UIPasteboard generalPasteboard] containsPasteboardTypes:[NSArray arrayWithObject:@"public.utf8-plain-text"]]);
+        
+        debug(@"[UIPasteboard generalPasteboard]: '%@'", [[UIPasteboard generalPasteboard] pasteboardTypes]);
+        
+        return (_editing && [[UIPasteboard generalPasteboard] containsPasteboardTypes:[NSArray arrayWithObject:(id)kUTTypeText]]);
     } else if (action == @selector(delete:)) {
         return NO;
     }
@@ -2211,7 +2217,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 
 - (void)paste:(id)sender {
     
-    NSString *pasteText = [[UIPasteboard generalPasteboard] valueForPasteboardType:@"public.utf8-plain-text"];
+    NSString *pasteText = [[UIPasteboard generalPasteboard] valueForPasteboardType:(id)kUTTypeText];
     
     if (pasteText!=nil) {
         [self insertText:pasteText];
@@ -2241,7 +2247,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 - (void)cut:(id)sender {
     
     NSString *string = [_attributedString.string substringWithRange:_selectedRange];
-    [[UIPasteboard generalPasteboard] setValue:string forPasteboardType:@"public.utf8-plain-text"];
+    [[UIPasteboard generalPasteboard] setValue:string forPasteboardType:(id)kUTTypeUTF8PlainText];
     
     [_mutableAttributedString setAttributedString:self.attributedString];
     [_mutableAttributedString deleteCharactersInRange:_selectedRange];
@@ -2257,7 +2263,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 - (void)copy:(id)sender {
     
     NSString *string = [self.attributedString.string substringWithRange:_selectedRange];
-    [[UIPasteboard generalPasteboard] setValue:string forPasteboardType:@"public.utf8-plain-text"];
+    [[UIPasteboard generalPasteboard] setValue:string forPasteboardType:(id)kUTTypeUTF8PlainText];
     
 }
 
