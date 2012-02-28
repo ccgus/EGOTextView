@@ -2166,9 +2166,6 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     } else if ((action == @selector(select:) || action == @selector(selectAll:))) {
         return (_selectedRange.length==0 && [self hasText]);
     } else if (action == @selector(paste:)) {
-        
-        debug(@"[UIPasteboard generalPasteboard]: '%@'", [[UIPasteboard generalPasteboard] pasteboardTypes]);
-        
         return (_editing && [[UIPasteboard generalPasteboard] containsPasteboardTypes:[NSArray arrayWithObject:(id)kUTTypeText]]);
     } else if (action == @selector(delete:)) {
         return NO;
