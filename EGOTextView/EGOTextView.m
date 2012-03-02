@@ -907,6 +907,14 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 }
 
 
+- (void)scrollToTextRange:(NSRange)r {
+    CGRect rect = [self caretRectForIndex:r.location];
+    
+    [self scrollRectToVisible:[_textContentView convertRect:rect toView:self] animated:YES];
+    
+    
+}
+
 /////////////////////////////////////////////////////////////////////////////
 // MARK: -
 // MARK: Text Selection
