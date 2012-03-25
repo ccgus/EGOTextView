@@ -945,7 +945,10 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
         
         CGRect frame = _caretView.frame;
         frame.origin.y -= (self.font.lineHeight*2);
-        [self scrollRectToVisible:[_textContentView convertRect:frame toView:self] animated:YES];
+        
+        if (!(_selectedRange.location == 0 && _selectedRange.length == 0)) {
+            [self scrollRectToVisible:[_textContentView convertRect:frame toView:self] animated:YES];
+        }
         
         [_textContentView setNeedsDisplay];
         
