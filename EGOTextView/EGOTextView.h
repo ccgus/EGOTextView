@@ -127,5 +127,6 @@ extern NSString * const EGOTextAttachmentPlaceholderString;
 - (BOOL)hasText;
 - (void)setCorrectionRange:(NSRange)range;
 - (void)scrollToTextRange:(NSRange)r;
+- (NSInteger)closestIndexToPoint:(CGPoint)point;
 
 @end
