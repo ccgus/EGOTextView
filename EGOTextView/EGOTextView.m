@@ -1341,6 +1341,12 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     EGOIndexedPosition *pos = (EGOIndexedPosition *)position;
 	return [self caretRectForIndex:pos.index];    
 }
+
+
+- (NSArray *)selectionRectsForRange:(UITextRange *)range {
+    return [NSArray array];
+}
+
 /*
 - (UIView *)textInputView {
     return _textContentView;
